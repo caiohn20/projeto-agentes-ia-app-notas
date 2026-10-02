@@ -1,0 +1,148 @@
+---
+description: Guia de estilo Angular — arquivos, templates, DI, signals e control flow
+alwaysApply: true
+---
+
+# Guia de estilo Angular
+
+## Um arquivo, uma entidade
+
+Separe constantes, interfaces e types. Cada arquivo exporta uma única entidade.
+
+```typescript
+// ❌ user.ts — mistura constante, type e interface
+export const PAPEL_PADRAO = 'leitor';
+export type Papel = 'leitor' | 'editor';
+export interface Usuario {
+  nome: string;
+}
+
+// ✅ papel-padrao.ts
+export const PAPEL_PADRAO = 'leitor';
+
+// ✅ papel.ts
+export type Papel = 'leitor' | 'editor';
+
+// ✅ usuario.ts
+export interface Usuario {
+  nome: string;
+}
+```
+
+## Template em arquivo próprio
+
+Componentes usam `templateUrl`. Não crie componente com `template` inline.
+
+```typescript
+// ❌
+@Component({
+  selector: 'app-nota',
+  template: `<p>{{ titulo() }}</p>`,
+})
+export class Nota {}
+
+// ✅ nota.ts + nota.html
+@Component({
+  selector: 'app-nota',
+  templateUrl: './nota.html',
+})
+export class Nota {}
+```
+
+## Serviços com `@Service`
+
+Use `@Service` de `@angular/core` no lugar de `@Injectable`. Dependências entram com `inject()`.
+
+```typescript
+// ❌
+import { Injectable } from '@angular/core';
+
+@Injectable({ providedIn: 'root' })
+export class Notas {
+  constructor(private http: HttpClient) {}
+}
+
+// ✅
+import { Service, inject } from '@angular/core';
+
+@Service()
+export class Notas {
+  private readonly http = inject(HttpClient);
+}
+```
+
+Mantenha `@Injectable` apenas quando a classe precisar de injeção pelo construtor, escopo diferente de `root`, ou `useClass` / `useValue` / `useExisting` / `useFactory`.
+
+## Estado somente leitura com `computed`
+
+Exponha leitura derivada com `computed`. Não use `signal.asReadonly()`.
+
+```typescript
+// ❌
+private readonly notasState = signal<Nota[]>([]);
+readonly notas = this.notasState.asReadonly();
+
+// ✅
+private readonly notasState = signal<Nota[]>([]);
+readonly notas = computed(() => this.notasState());
+```
+
+## APIs do `window` atrás de `InjectionToken`
+
+Não acesse `localStorage`, `sessionStorage` ou `window` direto. Abstraia cada recurso em um `InjectionToken`, no próprio arquivo.
+
+```typescript
+// local-storage.token.ts
+import { InjectionToken } from '@angular/core';
+
+export const LOCAL_STORAGE = new InjectionToken<Storage>('LOCAL_STORAGE', {
+  providedIn: 'root',
+  factory: () => localStorage,
+});
+
+// notas.ts
+private readonly storage = inject(LOCAL_STORAGE);
+```
+
+## Classes no template
+
+Use `[class]`. Não use `[ngClass]`.
+
+```html
+<!-- ❌ -->
+<div [ngClass]="{ ativo: ativo() }"></div>
+
+<!-- ✅ -->
+<div [class.ativo]="ativo()"></div>
+```
+
+## Control flow nativo
+
+Use `@for`, `@if` e `@switch`. Não use `*ngFor`, `*ngIf` nem `*ngSwitch`.
+
+```html
+@if (carregando()) {
+  <p>Carregando</p>
+} @else {
+  @for (nota of notas(); track nota.id) {
+    <app-nota [nota]="nota" />
+  }
+}
+
+@switch (status()) {
+  @case ('erro') { <p>Falhou</p> }
+  @default { <p>Ok</p> }
+}
+```
+
+## `ngModel` ligado ao signal
+
+Amarre o signal direto com two-way binding.
+
+```html
+<!-- ❌ -->
+<input [ngModel]="titulo()" (ngModelChange)="titulo.set($event)" />
+
+<!-- ✅ -->
+<input [(ngModel)]="titulo" />
+```

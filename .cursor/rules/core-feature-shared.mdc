@@ -1,0 +1,89 @@
+---
+description: Estrutura de pastas core, shared e features e regras de dependência
+alwaysApply: true
+---
+
+# Arquitetura de Pastas (core, shared, features)
+
+Organize o código da aplicação seguindo a separação em `core/`, `shared/` e `features/`.
+
+## Responsabilidades das Pastas
+
+- **`core/`**: Recursos essenciais da aplicação, usados diretamente em `app.config.ts` ou consumidos exclusivamente por outros recursos dentro de `core/` (e.g., interceptors HTTP, guardas raiz, tokens globais, providers essenciais).
+- **`shared/`**: Recursos reutilizáveis compartilhados entre múltiplas features ou usados internamente dentro de `shared/` (e.g., componentes genéricos de UI, pipes utilitários, diretivas comuns, modelos de dados compartilhados).
+- **`features/`**: Módulos/páginas de domínio da aplicação que representam telas ou fluxos de negócio. Devem ser carregados via **lazy loading** nas rotas.
+
+## Matriz de Dependências Permitidas
+
+| Origem (Quem importa) | `core/` | `shared/` | `features/` |
+|-----------------------|:-------:|:---------:|:-----------:|
+| **`core/`**           |   ✅    |    ❌     |     ❌      |
+| **`shared/`**         |   ✅    |    ✅     |     ❌      |
+| **`features/`**       |   ✅    |    ✅     |     ✅      |
+
+### Regras de Relacionamento
+
+1. **`core`**:
+   - ✅ Pode depender de `core`
+   - ❌ **Não pode** depender de `shared`
+   - ❌ **Não pode** depender de `features`
+
+2. **`shared`**:
+   - ✅ Pode depender de `core`
+   - ✅ Pode depender de `shared`
+   - ❌ **Não pode** depender de `features`
+
+3. **`features`**:
+   - ✅ Pode depender de `core`
+   - ✅ Pode depender de `shared`
+   - ✅ Pode depender de `features`
+
+---
+
+## Exemplos de Importação
+
+### 1. Dentro de `core/`
+
+```typescript
+// ❌ Proibido: core depender de shared ou features
+import { BotaoComponent } from '../shared/components/botao/botao';
+import { NotasService } from '../features/notas/services/notas';
+
+// ✅ Permitido: core depender apenas de core
+import { API_URL } from './tokens/api-url.token';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+```
+
+### 2. Dentro de `shared/`
+
+```typescript
+// ❌ Proibido: shared depender de features
+import { NotaCardComponent } from '../features/notas/components/nota-card/nota-card';
+
+// ✅ Permitido: shared depender de core ou de outro recurso em shared
+import { LOCAL_STORAGE } from '../core/tokens/local-storage.token';
+import { FormatadorDataPipe } from './pipes/formatador-data.pipe';
+```
+
+### 3. Dentro de `features/`
+
+```typescript
+// ✅ Permitido: feature depender de core, shared ou de outra feature
+import { LOCAL_STORAGE } from '../core/tokens/local-storage.token';
+import { BotaoComponent } from '../shared/components/botao/botao';
+import { PerfilUsuario } from '../features/perfil/models/perfil-usuario';
+```
+
+## Carregamento de Features via Lazy Loading
+
+Toda feature deve ser exposta nas rotas principais através de `loadComponent` ou `loadChildren`:
+
+```typescript
+// app.routes.ts
+export const routes: Routes = [
+  {
+    path: 'notas',
+    loadChildren: () => import('./features/notas/notas.routes').then(m => m.NOTAS_ROUTES)
+  }
+];
+```
