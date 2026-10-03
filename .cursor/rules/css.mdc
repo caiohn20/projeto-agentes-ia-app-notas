@@ -1,0 +1,54 @@
+---
+description: Padrões de estilização utilizando Tailwind CSS e componentes daisyUI
+alwaysApply: true
+---
+
+# Padrões de Estilização (Tailwind CSS e daisyUI)
+
+Diretrizes obrigatórias para estilização e construção visual da interface no projeto.
+
+## 1. Estilização com Tailwind CSS
+- Utilize sempre as classes utilitárias do Tailwind CSS para estruturar e estilizar elementos da aplicação.
+- Evite criar estilos CSS puros, seletores manuais ou arquivos `.css` específicos por componente, a menos que estritamente necessário.
+
+## 2. Animações, Sombras e Efeitos Nativos
+- Utilize os utilitários nativos do Tailwind para animações (`animate-spin`, `animate-pulse`, etc.), transições (`transition`, `duration-200`, `ease-in-out`) e sombras (`shadow-sm`, `shadow-md`, `shadow-lg`).
+- Não implemente regras `@keyframes`, transições personalizadas ou sombras manuais do zero.
+
+## 3. Componentes Prontos do daisyUI
+- Priorize e utilize os componentes semânticos do daisyUI (`btn`, `card`, `modal`, `input`, `badge`, `alert`, `table`, etc.) em vez de reconstruir componentes de UI do zero.
+- Combine utilitários de espaçamento e alinhamento do Tailwind sobre os componentes do daisyUI quando necessário.
+
+## 4. Paleta de Cores Sem Valores Hardcoded
+- Utilize exclusivamente as cores da paleta do Tailwind CSS (ex.: `text-slate-700`, `bg-blue-600`) ou os tokens semânticos de tema do daisyUI (ex.: `bg-base-100`, `text-primary`, `border-base-300`, `text-base-content`).
+- Nunca utilize valores hardcoded hexadecimais, RGB/HSL ou classes arbitrárias de cores fixas (como `bg-[#ffffff]` ou `style="color: #333"`).
+
+---
+
+## Exemplos Práticos
+
+```html
+<!-- ❌ Evite: cores hardcoded, estilos manuais e recriação de botões do zero -->
+<button style="background-color: #3b82f6; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" class="px-4 py-2 rounded text-white">
+  Salvar
+</button>
+
+<!-- ✅ Recomendado: botão nativo daisyUI com efeitos e tokens semânticos -->
+<button type="button" class="btn btn-primary shadow-md transition duration-200">
+  Salvar
+</button>
+```
+
+```html
+<!-- ❌ Evite: card montado do zero com cores arbitrárias e sombras manuais -->
+<div class="bg-[#f9fafb] p-4 rounded-lg shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)]">
+  <h2 class="text-[#1f2937] font-bold">Título</h2>
+</div>
+
+<!-- ✅ Recomendado: card do daisyUI com tokens de tema e sombra nativa -->
+<div class="card bg-base-100 shadow-md border border-base-200">
+  <div class="card-body p-4">
+    <h2 class="card-title text-base-content">Título</h2>
+  </div>
+</div>
+```

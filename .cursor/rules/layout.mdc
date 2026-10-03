@@ -1,0 +1,107 @@
+---
+description: Padrões de layout, estrutura de navegação e fluxos visuais da aplicação de notas
+alwaysApply: true
+---
+
+# Diretrizes de Layout e Estrutura de Telas
+
+Define a estrutura visual, distribuição das rotas, apresentação de notas e fluxos de interação na aplicação.
+
+## 1. Estrutura Base da Aplicação (Shell)
+
+- **Header Global**: A aplicação deve conter um header com o título visível fixado ou no topo da página.
+- **Área Central de Roteamento**: O roteamento (`<router-outlet />`) deve estar posicionado e centralizado no centro da aplicação (ex.: tag `<main>` com container responsivo).
+- **Simplicidade e Funcionalidade**: Manter o layout limpo, direto e funcional, evitando poluição visual.
+
+## 2. Página Home (Listagem de Anotações)
+
+- **Listagem Completa**: A página inicial deve listar todas as anotações cadastradas.
+- **Botão Adicionar Acima**: Logo acima da listagem de cards, deve haver um botão em destaque para adicionar uma nova anotação.
+- **Apresentação em Cards**: Cada anotação deve ser renderizada obrigatoriamente dentro de um componente de card (usando a classe `card` do daisyUI).
+
+## 3. Ações no Card de Anotação
+
+Dentro de cada card de anotação, devem existir botões dedicados para as ações:
+- **Editar**: Redireciona para a página com o formulário de edição da anotação.
+- **Remover**: Dispara a abertura de um modal de confirmação antes de remover a anotação.
+
+## 4. Fluxos de Formulário (Criação e Edição)
+
+- **Ação de Adicionar**: Não deve ser modal nem inline; deve ser uma página dedicada com rota própria contendo o formulário de criação.
+- **Ação de Editar**: Também deve ser uma página dedicada com rota própria contendo o formulário preenchido para edição.
+
+## 5. Fluxo de Remoção (Modal de Confirmação)
+
+- A remoção de qualquer anotação deve exigir confirmação através de um modal (ex.: `<dialog class="modal">` do daisyUI) com opções de confirmar ou cancelar a ação.
+
+---
+
+## Exemplos Práticos
+
+### 1. Shell Principal (`app.html`)
+
+```html
+<header class="navbar bg-base-100 border-b border-base-200 px-4 shadow-xs">
+  <h1 class="text-xl font-bold tracking-tight text-base-content">App de Notas</h1>
+</header>
+
+<main class="container mx-auto max-w-5xl px-4 py-8 flex-1">
+  <router-outlet />
+</main>
+```
+
+### 2. Cabeçalho e Listagem na Home
+
+```html
+<div class="flex items-center justify-between mb-6">
+  <h2 class="text-2xl font-bold text-base-content">Minhas Anotações</h2>
+  <a routerLink="/nova" class="btn btn-primary btn-sm md:btn-md">
+    Adicionar Anotação
+  </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  @for (nota of notas(); track nota.id) {
+    <app-nota-card [nota]="nota" (remover)="confirmarRemocao($event)" />
+  }
+</div>
+```
+
+### 3. Card com Botões de Ação
+
+```html
+<div class="card bg-base-100 shadow-sm border border-base-200">
+  <div class="card-body p-5">
+    <h3 class="card-title text-base-content">{{ nota().titulo }}</h3>
+    <p class="text-sm text-base-content/80 line-clamp-3">{{ nota().conteudo }}</p>
+
+    <div class="card-actions justify-end mt-4 gap-2">
+      <a [routerLink]="['/editar', nota().id]" class="btn btn-outline btn-sm">
+        Editar
+      </a>
+      <button 
+        type="button" 
+        class="btn btn-error btn-sm btn-soft"
+        (click)="remover.emit(nota().id)"
+      >
+        Remover
+      </button>
+    </div>
+  </div>
+</div>
+```
+
+### 4. Modal de Confirmação de Remoção
+
+```html
+<dialog class="modal" [class.modal-open]="modalAberto()">
+  <div class="modal-box">
+    <h3 class="text-lg font-bold">Confirmar Exclusão</h3>
+    <p class="py-4">Tem certeza de que deseja remover esta anotação? Esta ação não pode ser desfeita.</p>
+    <div class="modal-action">
+      <button type="button" class="btn btn-ghost" (click)="fecharModal()">Cancelar</button>
+      <button type="button" class="btn btn-error" (click)="executarRemocao()">Remover</button>
+    </div>
+  </div>
+</dialog>
+```
