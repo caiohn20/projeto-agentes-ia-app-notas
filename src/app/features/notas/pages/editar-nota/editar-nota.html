@@ -1,0 +1,87 @@
+<section class="max-w-2xl mx-auto space-y-6">
+  @if (naoEncontrada()) {
+    <div class="card bg-base-100 border border-base-200 shadow-sm text-center p-8">
+      <div class="card-body items-center max-w-md mx-auto">
+        <h3 class="card-title text-lg font-bold text-base-content">
+          Anotação não encontrada
+        </h3>
+        <p class="text-sm text-base-content/70">
+          A anotação que você está tentando editar não existe ou foi removida.
+        </p>
+        <div class="card-actions justify-center mt-4">
+          <a routerLink="/notas" class="btn btn-primary btn-sm">
+            Voltar para Anotações
+          </a>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="flex items-center justify-between pb-2 border-b border-base-200">
+      <div>
+        <h2 class="text-2xl font-bold text-base-content">Editar Anotação</h2>
+        <p class="text-sm text-base-content/70">
+          Modifique os campos desejados e salve as alterações.
+        </p>
+      </div>
+      <a routerLink="/notas" class="btn btn-ghost btn-sm">
+        Voltar
+      </a>
+    </div>
+
+    @if (erro()) {
+      <div class="alert alert-error text-sm shadow-xs">
+        <span>{{ erro() }}</span>
+      </div>
+    }
+
+    <div class="card bg-base-100 border border-base-200 shadow-sm">
+      <form (ngSubmit)="salvar()" class="card-body p-6 space-y-4">
+        <div class="flex flex-col gap-1.5">
+          <label for="titulo" class="text-sm font-semibold text-base-content">
+            Título
+          </label>
+          <input
+            id="titulo"
+            name="titulo"
+            type="text"
+            [(ngModel)]="titulo"
+            placeholder="Título da anotação"
+            class="input input-bordered w-full text-sm"
+            required
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label for="conteudo" class="text-sm font-semibold text-base-content">
+            Conteúdo
+          </label>
+          <textarea
+            id="conteudo"
+            name="conteudo"
+            [(ngModel)]="conteudo"
+            placeholder="Conteúdo da anotação"
+            class="textarea textarea-bordered w-full h-44 text-sm leading-relaxed"
+            required
+          ></textarea>
+        </div>
+
+        <div class="card-actions justify-end gap-2 pt-4 border-t border-base-200">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm md:btn-md"
+            (click)="cancelar()"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary btn-sm md:btn-md"
+            [disabled]="!formularioValido()"
+          >
+            Salvar Alterações
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</section>

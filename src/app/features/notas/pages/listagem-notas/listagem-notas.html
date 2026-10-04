@@ -1,0 +1,100 @@
+<section class="space-y-6">
+  <!-- Cabeçalho da Listagem -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-base-200">
+    <div class="flex items-center gap-3">
+      <h2 class="text-2xl font-bold text-base-content">Minhas Anotações</h2>
+      <span class="badge badge-primary badge-outline text-xs font-semibold">
+        {{ totalNotas() }} {{ totalNotas() === 1 ? 'anotação' : 'anotações' }}
+      </span>
+    </div>
+
+    <a routerLink="/nova" class="btn btn-primary btn-sm md:btn-md shadow-xs transition duration-200">
+      Adicionar Anotação
+    </a>
+  </div>
+
+  <!-- Barra de Busca e Filtro -->
+  <div class="flex flex-col sm:flex-row items-center gap-3">
+    <div class="w-full relative">
+      <input
+        type="text"
+        [(ngModel)]="termoBusca"
+        placeholder="Buscar anotações por título ou conteúdo..."
+        class="input input-bordered w-full text-sm"
+      />
+      @if (termoBusca()) {
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs absolute right-2 top-1/2 -translate-y-1/2 text-base-content/60"
+          (click)="limparBusca()"
+          title="Limpar busca"
+        >
+          ✕
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Grid de Anotações -->
+  @if (notasFiltradas().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (nota of notasFiltradas(); track nota.id) {
+        <app-nota-card [nota]="nota" (remover)="confirmarRemocao($event)" />
+      }
+    </div>
+  } @else {
+    <!-- Estado Vazio -->
+    <div class="card bg-base-100 border border-base-200 shadow-xs text-center p-8">
+      <div class="card-body items-center max-w-md mx-auto">
+        <h3 class="card-title text-lg font-bold text-base-content">
+          @if (termoBusca()) {
+            Nenhuma anotação encontrada
+          } @else {
+            Você ainda não possui anotações
+          }
+        </h3>
+        <p class="text-sm text-base-content/70">
+          @if (termoBusca()) {
+            Nenhum resultado corresponde ao termo "{{ termoBusca() }}". Tente buscar por outras palavras-chave.
+          } @else {
+            Comece criando sua primeira anotação para organizar suas ideias, tarefas e projetos.
+          }
+        </p>
+
+        <div class="card-actions justify-center mt-4">
+          @if (termoBusca()) {
+            <button type="button" class="btn btn-outline btn-sm" (click)="limparBusca()">
+              Limpar busca
+            </button>
+          } @else {
+            <a routerLink="/nova" class="btn btn-primary btn-sm">
+              Criar Primeira Anotação
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de Confirmação de Remoção -->
+  <dialog class="modal" [class.modal-open]="modalAberto()">
+    <div class="modal-box">
+      <h3 class="text-lg font-bold text-base-content">Confirmar Exclusão</h3>
+      <p class="py-4 text-sm text-base-content/80">
+        @if (notaParaRemover(); as nota) {
+          Tem certeza de que deseja remover a anotação <strong>"{{ nota.titulo }}"</strong>? Esta ação não pode ser desfeita.
+        } @else {
+          Tem certeza de que deseja remover esta anotação? Esta ação não pode ser desfeita.
+        }
+      </p>
+      <div class="modal-action">
+        <button type="button" class="btn btn-ghost" (click)="fecharModal()">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-error" (click)="executarRemocao()">
+          Remover
+        </button>
+      </div>
+    </div>
+  </dialog>
+</section>

@@ -1,0 +1,69 @@
+<section class="max-w-2xl mx-auto space-y-6">
+  <div class="flex items-center justify-between pb-2 border-b border-base-200">
+    <div>
+      <h2 class="text-2xl font-bold text-base-content">Nova Anotação</h2>
+      <p class="text-sm text-base-content/70">
+        Preencha os campos abaixo para criar uma nova anotação.
+      </p>
+    </div>
+    <a routerLink="/notas" class="btn btn-ghost btn-sm">
+      Voltar
+    </a>
+  </div>
+
+  @if (erro()) {
+    <div class="alert alert-error text-sm shadow-xs">
+      <span>{{ erro() }}</span>
+    </div>
+  }
+
+  <div class="card bg-base-100 border border-base-200 shadow-sm">
+    <form (ngSubmit)="salvar()" class="card-body p-6 space-y-4">
+      <div class="flex flex-col gap-1.5">
+        <label for="titulo" class="text-sm font-semibold text-base-content">
+          Título
+        </label>
+        <input
+          id="titulo"
+          name="titulo"
+          type="text"
+          [(ngModel)]="titulo"
+          placeholder="Ex.: Reunião de Planejamento"
+          class="input input-bordered w-full text-sm"
+          required
+        />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label for="conteudo" class="text-sm font-semibold text-base-content">
+          Conteúdo
+        </label>
+        <textarea
+          id="conteudo"
+          name="conteudo"
+          [(ngModel)]="conteudo"
+          placeholder="Digite o texto detalhado da sua anotação..."
+          class="textarea textarea-bordered w-full h-44 text-sm leading-relaxed"
+          required
+        ></textarea>
+      </div>
+
+      <div class="card-actions justify-end gap-2 pt-4 border-t border-base-200">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm md:btn-md"
+          (click)="cancelar()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary btn-sm md:btn-md"
+          [disabled]="!formularioValido()"
+        >
+          Salvar Anotação
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

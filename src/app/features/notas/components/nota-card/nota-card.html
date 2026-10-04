@@ -1,0 +1,29 @@
+<div class="card bg-base-100 shadow-sm border border-base-200 transition duration-200 hover:shadow-md flex flex-col justify-between">
+  <div class="card-body p-5">
+    <div class="flex items-start justify-between gap-2 mb-2">
+      <h3 class="card-title text-base font-bold text-base-content leading-tight">
+        {{ nota().titulo }}
+      </h3>
+      <span class="badge badge-neutral badge-xs shrink-0 py-2 px-2 text-xs">
+        {{ nota().dataCriacao | date: 'dd/MM/yyyy' }}
+      </span>
+    </div>
+
+    <p class="text-sm text-base-content/80 line-clamp-3 whitespace-pre-line">
+      {{ nota().conteudo }}
+    </p>
+
+    <div class="card-actions justify-end mt-4 gap-2 pt-3 border-t border-base-200">
+      <a [routerLink]="['/editar', nota().id]" class="btn btn-outline btn-sm">
+        Editar
+      </a>
+      <button
+        type="button"
+        class="btn btn-error btn-sm btn-soft"
+        (click)="remover.emit(nota().id)"
+      >
+        Remover
+      </button>
+    </div>
+  </div>
+</div>
