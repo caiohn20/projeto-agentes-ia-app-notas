@@ -24,10 +24,10 @@ Este projeto utiliza a seguinte stack tecnológica e convenções essenciais:
 
 ### Angular 22
 - **Reatividade com Signals**: Priorize `signal()`, `computed()`, `input()`, `output()` e `viewChild()`.
+- **Formulários com Signal Forms**: Utilize Signal Forms (`@angular/forms/signals`) com `form()`, `[formField]` e `[formRoot]`. Evite `FormsModule` e `[(ngModel)]`.
 - **Control Flow Nativo**: Use exclusivamente `@if`, `@for (item of items; track item.id)` e `@switch`. Não use `*ngIf` nem `*ngFor`.
 - **Injeção de Dependências**: Utilize `inject(...)` em vez de injeção por construtor.
 - **Templates**: Componentes devem usar `templateUrl` em arquivo `.html` separado (evite templates inline).
-- **Two-way Data Binding**: Amarre Signals diretamente com `[(ngModel)]="meuSignal"`.
 - **Lazy Loading**: Features e telas devem ser carregadas via `loadComponent` ou `loadChildren`.
 
 ### Tailwind CSS 4
@@ -294,16 +294,81 @@ Use `@for`, `@if` e `@switch`. Não use `*ngFor`, `*ngIf` nem `*ngSwitch`.
 }
 ```
 
-## `ngModel` ligado ao signal
+## Formulários com Signal Forms
 
-Amarre o signal direto com two-way binding.
+Utilize a API de **Signal Forms** (`@angular/forms/signals`) para gerenciar formulários de forma reativa e fortemente tipada. Não utilize `FormsModule` nem `[(ngModel)]`.
+
+### Princípios de Signal Forms:
+- **Modelo via Signal**: O estado base do formulário é mantido em um `signal({ ... })`.
+- **Criação do formulário com `form(...)`**: O formulário é criado a partir do modelo e recebe uma função de schema para regras de validação declarativas (`required`, `validate`, etc.).
+- **Vínculo de campos com `[formField]`**: Use a diretiva `[formField]` para conectar inputs, textareas ou componentes aos nós do form (ex.: `[formField]="meuForm.titulo"`). Importe `FormField` no componente.
+- **Integração com formulário HTML via `[formRoot]`**: Use `<form [formRoot]="meuForm" (submit)="salvar()">` para conectar a raiz do formulário e gerenciar submissão. Importe `FormRoot` no componente.
+- **Validação e Estado**: Verifique validade via Signals nativos do formulário (`meuForm().valid()`, `meuForm().invalid()`, `meuForm.campo().touched()`, etc.).
+
+```typescript
+// ❌ Proibido: FormsModule com two-way binding em signals
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  imports: [FormsModule],
+  // ...
+})
+export class Exemplo {
+  readonly titulo = signal('');
+}
+
+// ✅ Permitido: Signal Forms com @angular/forms/signals
+import { FormField, FormRoot, form, required, validate } from '@angular/forms/signals';
+
+@Component({
+  imports: [FormField, FormRoot],
+  // ...
+})
+export class Exemplo {
+  readonly model = signal({ titulo: '', conteudo: '' });
+
+  readonly meuForm = form(this.model, (campo) => {
+    required(campo.titulo, { message: 'O título é obrigatório.' });
+    required(campo.conteudo, { message: 'O conteúdo é obrigatório.' });
+    validate(campo.titulo, ({ value }) => {
+      if (value().length > 0 && !value().trim()) {
+        return { kind: 'blank', message: 'O título não pode ter apenas espaços.' };
+      }
+      return undefined;
+    });
+  });
+
+  salvar(): void {
+    if (this.meuForm().invalid()) {
+      this.meuForm().markAsTouched();
+      return;
+    }
+    // lógica de salvamento...
+  }
+}
+```
 
 ```html
-<!-- ❌ -->
-<input [ngModel]="titulo()" (ngModelChange)="titulo.set($event)" />
+<!-- ❌ Proibido: ngModel em inputs de formulário -->
+<form (ngSubmit)="salvar()">
+  <input [(ngModel)]="titulo" name="titulo" />
+</form>
 
-<!-- ✅ -->
-<input [(ngModel)]="titulo" />
+<!-- ✅ Permitido: Signal Forms no template -->
+<form [formRoot]="meuForm" (submit)="salvar()">
+  <input type="text" [formField]="meuForm.titulo" />
+  @if (meuForm.titulo().touched() && meuForm.titulo().invalid()) {
+    <span class="text-xs text-error">
+      {{ meuForm.titulo().errors()[0]?.message }}
+    </span>
+  }
+
+  <textarea [formField]="meuForm.conteudo"></textarea>
+
+  <button type="submit" [disabled]="!meuForm().valid()">
+    Salvar
+  </button>
+</form>
 ```
 
 ---

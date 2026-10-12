@@ -1,34 +1,58 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { FormField, FormRoot, form, required, validate } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { NotasService } from '../../services/notas.service';
 
 @Component({
   selector: 'app-nova-nota',
-  imports: [FormsModule, RouterLink],
+  imports: [FormField, FormRoot, RouterLink],
   templateUrl: './nova-nota.html',
 })
 export class NovaNotaComponent {
   private readonly router = inject(Router);
   private readonly notasService = inject(NotasService);
 
-  readonly titulo = signal('');
-  readonly conteudo = signal('');
+  readonly notaModel = signal({
+    titulo: '',
+    conteudo: '',
+  });
+
   readonly erro = signal('');
 
-  readonly formularioValido = computed(
-    () => this.titulo().trim().length > 0 && this.conteudo().trim().length > 0,
-  );
+  readonly notaForm = form(this.notaModel, (nota) => {
+    required(nota.titulo, { message: 'Por favor, preencha o título da anotação.' });
+    required(nota.conteudo, { message: 'Por favor, preencha o conteúdo da anotação.' });
+    validate(nota.titulo, ({ value }) => {
+      if (value().length > 0 && !value().trim()) {
+        return { kind: 'blank', message: 'O título não pode ser composto apenas por espaços.' };
+      }
+      return undefined;
+    });
+    validate(nota.conteudo, ({ value }) => {
+      if (value().length > 0 && !value().trim()) {
+        return { kind: 'blank', message: 'O conteúdo não pode ser composto apenas por espaços.' };
+      }
+      return undefined;
+    });
+  });
 
   salvar(): void {
-    const tituloTrim = this.titulo().trim();
-    const conteudoTrim = this.conteudo().trim();
+    if (this.notaForm().invalid()) {
+      this.notaForm().markAsTouched();
+      this.erro.set('Por favor, preencha o título e o conteúdo da anotação.');
+      return;
+    }
+
+    const { titulo, conteudo } = this.notaModel();
+    const tituloTrim = titulo.trim();
+    const conteudoTrim = conteudo.trim();
 
     if (!tituloTrim || !conteudoTrim) {
       this.erro.set('Por favor, preencha o título e o conteúdo da anotação.');
       return;
     }
 
+    this.erro.set('');
     this.notasService.adicionarNota({
       titulo: tituloTrim,
       conteudo: conteudoTrim,
@@ -42,3 +66,4 @@ export class NovaNotaComponent {
     this.router.navigate(['/notas']);
   }
 }
+
