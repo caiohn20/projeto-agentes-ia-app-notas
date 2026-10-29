@@ -18,6 +18,7 @@ export class NovaNotaComponent {
   });
 
   readonly erro = signal('');
+  readonly salvando = signal(false);
 
   readonly notaForm = form(this.notaModel, (nota) => {
     required(nota.titulo, { message: 'Por favor, preencha o título da anotação.' });
@@ -36,7 +37,11 @@ export class NovaNotaComponent {
     });
   });
 
-  salvar(): void {
+  async salvar(): Promise<void> {
+    if (this.salvando()) {
+      return;
+    }
+
     if (this.notaForm().invalid()) {
       this.notaForm().markAsTouched();
       this.erro.set('Por favor, preencha o título e o conteúdo da anotação.');
@@ -53,17 +58,28 @@ export class NovaNotaComponent {
     }
 
     this.erro.set('');
-    this.notasService.adicionarNota({
-      titulo: tituloTrim,
-      conteudo: conteudoTrim,
-      usuarioId: 'usuario-1',
-    });
+    this.salvando.set(true);
 
-    this.router.navigate(['/notas']);
+    try {
+      await this.notasService.adicionarNota({
+        titulo: tituloTrim,
+        conteudo: conteudoTrim,
+        usuarioId: this.notasService.usuarioId,
+      });
+      await this.router.navigate(['/notas']);
+    } catch (err) {
+      const mensagem =
+        err instanceof Error ? err.message : 'Ocorreu um erro ao salvar a anotação no servidor.';
+      this.erro.set(mensagem);
+    } finally {
+      this.salvando.set(false);
+    }
   }
 
   cancelar(): void {
-    this.router.navigate(['/notas']);
+    if (this.salvando()) {
+      return;
+    }
+    void this.router.navigate(['/notas']);
   }
 }
-

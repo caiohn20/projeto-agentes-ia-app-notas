@@ -58,6 +58,7 @@
         <button
           type="button"
           class="btn btn-ghost btn-sm md:btn-md"
+          [disabled]="salvando()"
           (click)="cancelar()"
         >
           Cancelar
@@ -65,9 +66,14 @@
         <button
           type="submit"
           class="btn btn-primary btn-sm md:btn-md"
-          [disabled]="!notaForm().valid()"
+          [disabled]="!notaForm().valid() || salvando()"
         >
-          Salvar Anotação
+          @if (salvando()) {
+            <span class="loading loading-spinner loading-xs"></span>
+            Salvando...
+          } @else {
+            Salvar Anotação
+          }
         </button>
       </div>
     </form>

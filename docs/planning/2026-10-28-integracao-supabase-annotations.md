@@ -144,7 +144,7 @@ declare namespace NodeJS {
 
 > **Instruções para Agentes**: Execute as micro tarefas sequencialmente, uma a uma. Marque como concluída `[x]` somente após verificar os critérios de aceite de cada item.
 
-- [ ] **Micro Tarefa 01: Instalação da dependência `@supabase/supabase-js`**
+- [x] **Micro Tarefa 01: Instalação da dependência `@supabase/supabase-js`**
   - **Objetivo**: Instalar o cliente oficial do Supabase para o ecossistema JavaScript/TypeScript.
   - **Arquivos-alvo**: `package.json`
   - **Dependências**: Nenhuma
@@ -153,7 +153,7 @@ declare namespace NodeJS {
     2. Conferir a adição da dependência em `dependencies` no `package.json`.
   - **Critério de Aceite / Validação**: Executar `npm list @supabase/supabase-js` e obter retorno de sucesso sem erros de resolução de dependência.
 
-- [ ] **Micro Tarefa 02: Configuração de variáveis de compilação no `angular.json` e tipagem global**
+- [x] **Micro Tarefa 02: Configuração de variáveis de compilação no `angular.json` e tipagem global**
   - **Objetivo**: Injetar as credenciais do projeto `annotations` via opção `define` e criar a declaração de tipos para `process.env`.
   - **Arquivos-alvo**: `angular.json`, `src/types/env.d.ts`
   - **Dependências**: Micro Tarefa 01
@@ -164,7 +164,7 @@ declare namespace NodeJS {
        - `process.env.SUPABASE_ANON_KEY`: `"\"sb_publishable_1FD6yVzwAqA5F1JzZWMBRQ_OxlANBS-\""`
   - **Critério de Aceite / Validação**: Executar `npx ng build` e confirmar que o build é executado normalmente reconhecendo as novas configurações.
 
-- [ ] **Micro Tarefa 03: Criação do modelo `SupabaseConfig` e do token de injeção `SUPABASE_CONFIG`**
+- [x] **Micro Tarefa 03: Criação do modelo `SupabaseConfig` e do token de injeção `SUPABASE_CONFIG`**
   - **Objetivo**: Estruturar o contrato de configuração e o InjectionToken para injeção de dependências do Supabase na camada `core`.
   - **Arquivos-alvo**: `src/app/core/models/supabase-config.ts`, `src/app/core/tokens/supabase-config.token.ts`
   - **Dependências**: Micro Tarefa 02
@@ -173,7 +173,7 @@ declare namespace NodeJS {
     2. Criar `src/app/core/tokens/supabase-config.token.ts` exportando `SUPABASE_CONFIG = new InjectionToken<SupabaseConfig>('SUPABASE_CONFIG', { providedIn: 'root', factory: () => ({ url: process.env.SUPABASE_URL, anonKey: process.env.SUPABASE_ANON_KEY }) })`.
   - **Critério de Aceite / Validação**: Compilação sem erros via `npx ng build` atendendo à regra "Um arquivo, uma entidade".
 
-- [ ] **Micro Tarefa 04: Implementação do serviço singleton `SupabaseService`**
+- [x] **Micro Tarefa 04: Implementação do serviço singleton `SupabaseService`**
   - **Objetivo**: Prover uma instância única e injetável do cliente Supabase para consumo nas features da aplicação.
   - **Arquivos-alvo**: `src/app/core/services/supabase.service.ts`
   - **Dependências**: Micro Tarefa 03
@@ -183,7 +183,7 @@ declare namespace NodeJS {
     3. Inicializar e exportar a propriedade `readonly client: SupabaseClient = createClient(this.config.url, this.config.anonKey)`.
   - **Critério de Aceite / Validação**: Executar `npx ng build` e verificar ausência de erros na camada `core`.
 
-- [ ] **Micro Tarefa 05: Refatoração do `NotasService`: Identificador de Usuário e Migração Legada**
+- [x] **Micro Tarefa 05: Refatoração do `NotasService`: Identificador de Usuário e Migração Legada**
   - **Objetivo**: Gerenciar a identificação única do usuário no navegador e efetuar a migração assíncrona única dos dados locais para a tabela remota `public.notas`.
   - **Arquivos-alvo**: `src/app/features/notas/services/notas.service.ts`
   - **Dependências**: Micro Tarefa 04
@@ -192,7 +192,7 @@ declare namespace NodeJS {
     2. Implementar método privado `migrarDadosLegados()`: verificar se `app_notas_migracao_concluida` está definida; se não estiver e houver notas em `app_notas_usuario`, inseri-las no Supabase via `supabase.client.from('notas').insert(...)` associadas ao `usuarioId` atual e registrar `app_notas_migracao_concluida = 'true'`.
   - **Critério de Aceite / Validação**: Compilação com `npx ng build`.
 
-- [ ] **Micro Tarefa 06: Refatoração do `NotasService`: CRUD Remoto Assíncrono e Signals de Estado**
+- [x] **Micro Tarefa 06: Refatoração do `NotasService`: CRUD Remoto Assíncrono e Signals de Estado**
   - **Objetivo**: Conectar as operações de consulta, criação, edição e exclusão de notas ao Supabase com signals reativos de carregamento e erro.
   - **Arquivos-alvo**: `src/app/features/notas/services/notas.service.ts`
   - **Dependências**: Micro Tarefa 05
@@ -204,7 +204,7 @@ declare namespace NodeJS {
     5. Disparar `carregarNotas()` na inicialização do serviço.
   - **Critério de Aceite / Validação**: Compilação limpa com `npx ng build`.
 
-- [ ] **Micro Tarefa 07: Atualização da Listagem (`ListagemNotasComponent` e Template)**
+- [x] **Micro Tarefa 07: Atualização da Listagem (`ListagemNotasComponent` e Template)**
   - **Objetivo**: Renderizar skeletons daisyUI durante o carregamento, feedback de erro com botão de repetição e feedback no modal de exclusão.
   - **Arquivos-alvo**: `src/app/features/notas/pages/listagem-notas/listagem-notas.ts`, `src/app/features/notas/pages/listagem-notas/listagem-notas.html`
   - **Dependências**: Micro Tarefa 06
@@ -215,7 +215,7 @@ declare namespace NodeJS {
     4. No modal de exclusão, adicionar o spinner `loading loading-spinner loading-xs` no botão de confirmação e bloquear interação enquanto `removendo()` for verdadeiro.
   - **Critério de Aceite / Validação**: Executar `npx ng build` sem erros de template ou tipos.
 
-- [ ] **Micro Tarefa 08: Atualização da Página de Criação (`NovaNotaComponent` e Template)**
+- [x] **Micro Tarefa 08: Atualização da Página de Criação (`NovaNotaComponent` e Template)**
   - **Objetivo**: Tratar a criação assíncrona no Supabase com indicador de carregamento e bloqueio no botão de salvar.
   - **Arquivos-alvo**: `src/app/features/notas/pages/nova-nota/nova-nota.ts`, `src/app/features/notas/pages/nova-nota/nova-nota.html`
   - **Dependências**: Micro Tarefa 06
@@ -225,7 +225,7 @@ declare namespace NodeJS {
     3. No template `nova-nota.html`, desabilitar o botão quando `salvando()` for verdadeiro e exibir a classe `loading loading-spinner loading-xs`.
   - **Critério de Aceite / Validação**: Compilação com `npx ng build`.
 
-- [ ] **Micro Tarefa 09: Refatoração da Página de Edição (`EditarNotaComponent` e Template)**
+- [x] **Micro Tarefa 09: Refatoração da Página de Edição (`EditarNotaComponent` e Template)**
   - **Objetivo**: Padronizar formulário de edição com Signal Forms e adicionar feedback assíncrono durante atualização.
   - **Arquivos-alvo**: `src/app/features/notas/pages/editar-nota/editar-nota.ts`, `src/app/features/notas/pages/editar-nota/editar-nota.html`
   - **Dependências**: Micro Tarefa 06
@@ -236,7 +236,7 @@ declare namespace NodeJS {
     4. No template `editar-nota.html`, adicionar `loading loading-spinner loading-xs` no botão durante o salvamento.
   - **Critério de Aceite / Validação**: Executar `npx ng build` e confirmar compilação do componente.
 
-- [ ] **Micro Tarefa 10: Atualização dos Testes Unitários do `NotasService`**
+- [x] **Micro Tarefa 10: Atualização dos Testes Unitários do `NotasService`**
   - **Objetivo**: Atualizar a suíte de testes unitários do serviço cobrindo o cliente Supabase mockado e cenários assíncronos.
   - **Arquivos-alvo**: `src/app/features/notas/services/notas.service.spec.ts`
   - **Dependências**: Micro Tarefa 06
@@ -246,7 +246,7 @@ declare namespace NodeJS {
     3. Implementar testes cobrindo: carregamento inicial assíncrono, adição de nova anotação, atualização, exclusão e verificação da migração legada.
   - **Critério de Aceite / Validação**: Executar `npx ng test --watch=false` e obter 100% de sucesso nos testes.
 
-- [ ] **Micro Tarefa 11: Validação Final e Integridade Geral do Projeto**
+- [x] **Micro Tarefa 11: Validação Final e Integridade Geral do Projeto**
   - **Objetivo**: Garantir a integridade da aplicação em modo de produção e conformidade com as regras arquiteturais do repositório.
   - **Arquivos-alvo**: Todo o repositório
   - **Dependências**: Micro Tarefas 01 a 10

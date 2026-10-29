@@ -26,7 +26,11 @@
             ],
             "styles": [
               "src/styles.css"
-            ]
+            ],
+            "define": {
+              "process.env.SUPABASE_URL": "\"https://ygizvocqcznjcxxgmyha.supabase.co\"",
+              "process.env.SUPABASE_ANON_KEY": "\"sb_publishable_1FD6yVzwAqA5F1JzZWMBRQ_OxlANBS-\""
+            }
           },
           "configurations": {
             "production": {

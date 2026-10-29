@@ -18,7 +18,8 @@
     <div class="w-full relative">
       <input
         type="text"
-        [(ngModel)]="termoBusca"
+        [value]="termoBusca()"
+        (input)="termoBusca.set($any($event.target).value)"
         placeholder="Buscar anotações por título ou conteúdo..."
         class="input input-bordered w-full text-sm"
       />
@@ -35,8 +36,37 @@
     </div>
   </div>
 
-  <!-- Grid de Anotações -->
-  @if (notasFiltradas().length > 0) {
+  <!-- Estado de Carregamento (Skeletons) -->
+  @if (carregando()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-busy="true">
+      @for (item of [1, 2, 3]; track item) {
+        <div class="card bg-base-100 border border-base-200 shadow-xs p-5 space-y-3">
+          <div class="skeleton h-5 w-3/4"></div>
+          <div class="skeleton h-4 w-full"></div>
+          <div class="skeleton h-4 w-5/6"></div>
+          <div class="skeleton h-3 w-1/3 pt-2"></div>
+          <div class="flex justify-end gap-2 pt-2">
+            <div class="skeleton h-8 w-16"></div>
+            <div class="skeleton h-8 w-16"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (erro()) {
+    <!-- Estado de Erro com Reintento -->
+    <div class="alert alert-error shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="text-sm font-medium">{{ erro() }}</span>
+      </div>
+      <button type="button" class="btn btn-sm btn-ghost border border-current" (click)="recarregar()">
+        Tentar Novamente
+      </button>
+    </div>
+  } @else if (notasFiltradas().length > 0) {
+    <!-- Grid de Anotações -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       @for (nota of notasFiltradas(); track nota.id) {
         <app-nota-card [nota]="nota" (remover)="confirmarRemocao($event)" />
@@ -88,11 +118,26 @@
         }
       </p>
       <div class="modal-action">
-        <button type="button" class="btn btn-ghost" (click)="fecharModal()">
+        <button
+          type="button"
+          class="btn btn-ghost"
+          [disabled]="removendo()"
+          (click)="fecharModal()"
+        >
           Cancelar
         </button>
-        <button type="button" class="btn btn-error" (click)="executarRemocao()">
-          Remover
+        <button
+          type="button"
+          class="btn btn-error"
+          [disabled]="removendo()"
+          (click)="executarRemocao()"
+        >
+          @if (removendo()) {
+            <span class="loading loading-spinner loading-xs"></span>
+            Removendo...
+          } @else {
+            Remover
+          }
         </button>
       </div>
     </div>
